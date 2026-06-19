@@ -1,2 +1,7 @@
 build
 compile_commands.json
+dist
+src/kr326lib.egg-info
+.venv
+__pycache__/
+*.so
