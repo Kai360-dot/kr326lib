@@ -45,3 +45,8 @@ pybind11_add_module(kr326lib src/bindings.cpp)
 # Link the extension against the pure-C++ static lib so the bindings can call
 # get_P_ideal_gas. PRIVATE: nothing links against a Python module.
 target_link_libraries(kr326lib PRIVATE chemlib)
+
+# Install the extension module into the wheel root so `import kr326lib` works.
+# scikit-build-core only packages files placed by install() rules; without this
+# the wheel is empty. DESTINATION "." == top level of site-packages.
+install(TARGETS kr326lib LIBRARY DESTINATION .)

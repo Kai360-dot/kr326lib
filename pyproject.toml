@@ -1,6 +1,12 @@
 [build-system]
-requires      = ["setuptools>=61.0.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires      = ["scikit-build-core>=0.10", "pybind11>=2.12"]
+build-backend = "scikit_build_core.build"
+
+[tool.scikit-build]
+# Require the same CMake floor as CMakeLists.txt; scikit-build-core provisions
+# cmake/ninja into the isolated build env if they are missing.
+cmake.version = ">=3.15"
+wheel.license-files = ["LICENSE"]
 
 [project]
 name = "kr326lib"
