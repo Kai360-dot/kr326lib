@@ -50,3 +50,19 @@ target_link_libraries(kr326lib PRIVATE chemlib)
 # scikit-build-core only packages files placed by install() rules; without this
 # the wheel is empty. DESTINATION "." == top level of site-packages.
 install(TARGETS kr326lib LIBRARY DESTINATION .)
+
+# --- Type stub: auto-generated at build time (NOT tracked in git) -----------
+# A compiled .so is opaque to editors, so after the module is linked we run
+# pybind11-stubgen against the freshly-built extension to emit kr326lib.pyi and
+# install it next to the .so. Runs on every build, so the autocomplete/hover
+# docs Python devs see always match the current bindings — no manual step.
+# pybind11-stubgen must be importable by the build interpreter: see pyproject
+# [build-system].requires (wheel builds) and the `dev` extra (editable rebuilds).
+set(_stub_out ${CMAKE_CURRENT_BINARY_DIR}/stubs)
+add_custom_command(TARGET kr326lib POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=$<TARGET_FILE_DIR:kr326lib>"
+            ${Python_EXECUTABLE} -m pybind11_stubgen kr326lib -o ${_stub_out}
+    BYPRODUCTS ${_stub_out}/kr326lib.pyi
+    COMMENT "Generating kr326lib.pyi type stub"
+    VERBATIM)
+install(FILES ${_stub_out}/kr326lib.pyi DESTINATION .)
