@@ -1,5 +1,5 @@
 [build-system]
-requires      = ["scikit-build-core>=0.10", "pybind11>=2.12"]
+requires      = ["scikit-build-core>=0.10", "pybind11>=2.12", "pybind11-stubgen>=2.5"]
 build-backend = "scikit_build_core.build"
 
 [tool.scikit-build]
@@ -27,7 +27,7 @@ dependencies = [
 requires-python = ">=3.9"
 
 [project.optional-dependencies]
-dev = ["black", "bumpver", "isort", "pip-tools", "pytest"]
+dev = ["black", "bumpver", "isort", "pip-tools", "pybind11-stubgen", "pytest"]
 
 [project.urls]
 Homepage = "https://github.com/Kai360-dot/kr326lib"
