@@ -8,6 +8,14 @@ build-backend = "scikit_build_core.build"
 cmake.version = ">=3.15"
 wheel.license-files = ["LICENSE"]
 
+[tool.cibuildwheel]
+# Build a wheel per supported Python; glibc Linux only (drop `skip` for Alpine).
+build = "cp311-* cp312-* cp313-*"
+skip = "*-musllinux*"
+build-frontend = "build"
+# Smoke-test each freshly built wheel so a broken artifact fails CI.
+test-command = 'python -c "import kr326lib; print(kr326lib.get_P_ideal_gas(1, 300, 0.0224))"'
+
 [project]
 name = "kr326lib"
 version = "1.0.0"
@@ -17,14 +25,19 @@ authors = [{ name = "Kai Ruth", email = "contact@kairuth.ch" }]
 license = { file = "LICENSE" }
 classifiers = [
     "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
     "Programming Language :: C++",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 keywords = ["numerical", "process-engineering", "C++", "chemistry"]
 dependencies = [
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 
 [project.optional-dependencies]
 dev = ["black", "bumpver", "isort", "pip-tools", "pybind11-stubgen", "pytest"]
