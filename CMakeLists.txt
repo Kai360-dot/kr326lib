@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 3.15...4.1)
 project(kr326lib LANGUAGES CXX)
 
-# Pin the Python used for the extension module to 3.13 (must be found BEFORE
-# pybind11 so pybind11 builds against this interpreter/headers, not whatever it
-# auto-detects). EXACT means configure fails if 3.13 is unavailable.
-find_package(Python 3.13 EXACT REQUIRED COMPONENTS Interpreter Development)
+# Find Python BEFORE pybind11 so pybind11 builds against this interpreter.
+# Floor of 3.11 (matches requires-python); Development.Module is the right
+# component for building an extension module — no EXACT pin, so wheels can be
+# built for every supported version (cp311–cp313).
+find_package(Python 3.11 REQUIRED COMPONENTS Interpreter Development.Module)
 
 add_subdirectory(extern/pybind11)
 
@@ -58,11 +59,18 @@ install(TARGETS kr326lib LIBRARY DESTINATION .)
 # docs Python devs see always match the current bindings — no manual step.
 # pybind11-stubgen must be importable by the build interpreter: see pyproject
 # [build-system].requires (wheel builds) and the `dev` extra (editable rebuilds).
-set(_stub_out ${CMAKE_CURRENT_BINARY_DIR}/stubs)
-add_custom_command(TARGET kr326lib POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=$<TARGET_FILE_DIR:kr326lib>"
-            ${Python_EXECUTABLE} -m pybind11_stubgen kr326lib -o ${_stub_out}
-    BYPRODUCTS ${_stub_out}/kr326lib.pyi
-    COMMENT "Generating kr326lib.pyi type stub"
-    VERBATIM)
-install(FILES ${_stub_out}/kr326lib.pyi DESTINATION .)
+#
+# This step IMPORTS the freshly-built module, so it cannot run when cross-
+# compiling (e.g. macOS universal2 / Linux aarch64 on a different host). Pass
+# -DKR326LIB_STUBS=OFF in that case.
+option(KR326LIB_STUBS "Generate and install the .pyi type stub" ON)
+if(KR326LIB_STUBS)
+  set(_stub_out ${CMAKE_CURRENT_BINARY_DIR}/stubs)
+  add_custom_command(TARGET kr326lib POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=$<TARGET_FILE_DIR:kr326lib>"
+              ${Python_EXECUTABLE} -m pybind11_stubgen kr326lib -o ${_stub_out}
+      BYPRODUCTS ${_stub_out}/kr326lib.pyi
+      COMMENT "Generating kr326lib.pyi type stub"
+      VERBATIM)
+  install(FILES ${_stub_out}/kr326lib.pyi DESTINATION .)
+endif()
