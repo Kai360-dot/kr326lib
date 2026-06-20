@@ -5,3 +5,7 @@ src/kr326lib.egg-info
 .venv
 __pycache__/
 *.so
+
+# type stub: auto-generated at build time (see CMakeLists.txt)
+*.pyi
+stubs/kr326lib.pyi
