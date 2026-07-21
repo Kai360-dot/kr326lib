@@ -45,5 +45,11 @@ dev = ["black", "bumpver", "isort", "pip-tools", "pybind11-stubgen", "pytest"]
 [project.urls]
 Homepage = "https://github.com/Kai360-dot/kr326lib"
 
+[dependency-groups]
+dev = [
+    "pydata-sphinx-theme>=0.20.0",
+    "sphinx>=9.0.4",
+]
+
 # [project.scripts]
 # realpython = "reader.__main__:main"
