@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.15...4.1)
 project(kr326lib LANGUAGES CXX)
 
-# Find Python BEFORE pybind11 so pybind11 builds against this interpreter.
-# Floor of 3.11 (matches requires-python); Development.Module is the right
-# component for building an extension module — no EXACT pin, so wheels can be
-# built for every supported version (cp311–cp313).
+# Find Python BEFORE pybind11 so pybind11 builds against this interpreter. Floor
+# of 3.11 (matches requires-python); Development.Module is the right component
+# for building an extension module — no EXACT pin, so wheels can be built for
+# every supported version (cp311–cp313).
 find_package(Python 3.11 REQUIRED COMPONENTS Interpreter Development.Module)
 
 add_subdirectory(extern/pybind11)
@@ -58,7 +58,8 @@ install(TARGETS kr326lib LIBRARY DESTINATION .)
 # install it next to the .so. Runs on every build, so the autocomplete/hover
 # docs Python devs see always match the current bindings — no manual step.
 # pybind11-stubgen must be importable by the build interpreter: see pyproject
-# [build-system].requires (wheel builds) and the `dev` extra (editable rebuilds).
+# [build-system].requires (wheel builds) and the `dev` extra (editable
+# rebuilds).
 #
 # This step IMPORTS the freshly-built module, so it cannot run when cross-
 # compiling (e.g. macOS universal2 / Linux aarch64 on a different host). Pass
@@ -66,11 +67,26 @@ install(TARGETS kr326lib LIBRARY DESTINATION .)
 option(KR326LIB_STUBS "Generate and install the .pyi type stub" ON)
 if(KR326LIB_STUBS)
   set(_stub_out ${CMAKE_CURRENT_BINARY_DIR}/stubs)
-  add_custom_command(TARGET kr326lib POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=$<TARGET_FILE_DIR:kr326lib>"
-              ${Python_EXECUTABLE} -m pybind11_stubgen kr326lib -o ${_stub_out}
-      BYPRODUCTS ${_stub_out}/kr326lib.pyi
-      COMMENT "Generating kr326lib.pyi type stub"
-      VERBATIM)
+  # Prepend to PYTHONPATH instead of overwriting it: under pip build isolation
+  # pybind11_stubgen is only reachable through the PYTHONPATH pip sets (Read the
+  # Docs).
+  if(WIN32)
+    set(_pathsep "$<SEMICOLON>")
+  else()
+    set(_pathsep ":")
+  endif()
+  set(_inherited_pythonpath "$ENV{PYTHONPATH}")
+  string(REPLACE ";" "$<SEMICOLON>" _inherited_pythonpath
+                 "${_inherited_pythonpath}")
+  add_custom_command(
+    TARGET kr326lib
+    POST_BUILD
+    COMMAND
+      ${CMAKE_COMMAND} -E env
+      "PYTHONPATH=$<TARGET_FILE_DIR:kr326lib>${_pathsep}${_inherited_pythonpath}"
+      ${Python_EXECUTABLE} -m pybind11_stubgen kr326lib -o ${_stub_out}
+    BYPRODUCTS ${_stub_out}/kr326lib.pyi
+    COMMENT "Generating kr326lib.pyi type stub"
+    VERBATIM)
   install(FILES ${_stub_out}/kr326lib.pyi DESTINATION .)
 endif()
